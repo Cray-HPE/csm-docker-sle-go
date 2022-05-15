@@ -1,0 +1,51 @@
+@Library('csm-shared-library@main') _
+
+// Find the latest go-version here: https://go.dev/VERSION?m=text
+def goVersion = '1.17'
+
+def promotionToken = ~"(main|release\\/.*)"
+def isStable = env.TAG_NAME != null || env.BRANCH_NAME ==~ promotionToken ? true : false
+pipeline {
+
+    agent {
+        label "metal-gcp-builder"
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: "1"))
+        timestamps()
+    }
+
+    environment {
+        DESCRIPTION = "CRAY System Management SLE Server GoLang Build Image"
+        DOCKER_ARGS = getDockerBuildArgs(name: env.NAME, description: env.DESCRIPTION)
+        DOCKER_BUILDKIT = 1
+        GO_VERSION = "${goVersion}"
+        NAME = "csm-docker-sle-go"
+        VERSION = "${GIT_COMMIT[0..6]}"
+    }
+
+    stages {
+
+        stage('Build') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'sles15-registration-code', variable: 'SLES_REGISTRATION_CODE')
+                ]) {
+                    sh "make image"
+                }
+            }
+        }
+
+        stage('Publish') {
+            steps {
+                script {
+                    publishCsmDockerImage(image: env.NAME, tag: env.VERSION, isStable: isStable)
+                    publishCsmDockerImage(image: env.NAME, tag: goVersion, isStable: isStable)
+                    publishCsmDockerImage(image: env.NAME, tag: "latest", isStable: isStable)
+                }
+            }
+        }
+
+    }
+}
