@@ -29,13 +29,12 @@ FROM base AS go-base
 ARG GO_VERSION=''
 ENV GOCACHE=/tmp
 
-RUN set -ex \
-    && if [ -z "${GO_VERSION}" ]; then export GO_VERSION="$(curl https://golang.org/VERSION?m=text)"; fi \
-    && curl -O "https://dl.google.com/go/$GO_VERSION.linux-amd64.tar.gz" \
+RUN if [ -z "${GO_VERSION}" ]; then export GO_VERSION="$(curl https://golang.org/VERSION?m=text)"; fi
+
+RUN curl -O "https://dl.google.com/go/$GO_VERSION.linux-amd64.tar.gz" \
     && tar -C /usr/local -xzf "$GO_VERSION.linux-amd64.tar.gz"
 
 ENV PATH="$PATH:/usr/local/go/bin"
 
-WORKDIR /build
-
 RUN SUSEConnect --cleanup
+WORKDIR /build
