@@ -3,8 +3,7 @@
 // Find the latest go-version here: https://go.dev/VERSION?m=text
 def goVersion = '1.17'
 
-def promotionToken = ~"(main|release\\/.*)"
-def isStable = env.TAG_NAME != null || env.BRANCH_NAME ==~ promotionToken ? true : false
+def isStable = env.TAG_NAME != null || env.BRANCH_NAME == 'main' ? true : false
 pipeline {
 
     agent {
