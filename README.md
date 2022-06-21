@@ -14,7 +14,7 @@ export SLES_REGISTRATION_CODE=<registration_code>
 docker build --secret id=SLES_REGISTRATION_CODE .
 
 # Build GoLang 1.18
-docker build --secret id=SLES_REGISTRATION_CODE --arg GO_VERSION=go1.18 .
+docker build --secret id=SLES_REGISTRATION_CODE --build-arg GO_VERSION=go1.18 .
 
 ```
 
