@@ -21,9 +21,6 @@ docker build --secret id=SLES_REGISTRATION_CODE --build-arg GO_VERSION=go1.18 .
 ## Running
 
 ```bash
-# Latest
-docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:latest
-
 # Go Version
 docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.17
 
