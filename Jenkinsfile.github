@@ -18,11 +18,10 @@ pipeline {
     }
 
     environment {
-        DESCRIPTION = "CRAY System Management SLE Server GoLang Build Image"
         DOCKER_ARGS = getDockerBuildArgs(name: env.NAME, description: env.DESCRIPTION)
         DOCKER_BUILDKIT = 1
         GO_VERSION = "${goVersion}"
-        NAME = "csm-docker-sle-go"
+        NAME = getRepoName()
         VERSION = "${GIT_COMMIT[0..6]}"
     }
 
@@ -43,10 +42,8 @@ pipeline {
                 script {
                     publishCsmDockerImage(image: env.NAME, tag: env.VERSION, isStable: isStable)
                     publishCsmDockerImage(image: env.NAME, tag: goVersion, isStable: isStable)
-                    publishCsmDockerImage(image: env.NAME, tag: "latest", isStable: isStable)
                 }
             }
         }
-
     }
 }

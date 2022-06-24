@@ -29,4 +29,3 @@ all: image
 image:
 	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --build-arg GO_VERSION='go${GO_VERSION}' --tag '${NAME}:${VERSION}' .
 	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:latest
