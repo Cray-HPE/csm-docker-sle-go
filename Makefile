@@ -23,9 +23,15 @@ NAME ?= ${NAME}
 DOCKER_BUILDKIT ?= ${DOCKER_BUILDKIT}
 GO_VERSION := $(shell awk -v replace="'" '/goVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
 VERSION ?= ${VERSION}
+ifeq ($(TIMESTAMP),)
+TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
+endif
 
 all: image
 
 image:
 	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --build-arg GO_VERSION='go${GO_VERSION}' --tag '${NAME}:${VERSION}' .
+	docker tag '${NAME}:${VERSION}' ${NAME}:${VERSION}-${TIMESTAMP}
 	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-${VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-${VERSION}-${TIMESTAMP}
