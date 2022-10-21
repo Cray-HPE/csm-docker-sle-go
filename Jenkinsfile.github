@@ -26,7 +26,7 @@
 @Library('csm-shared-library@main') _
 
 // Find the latest go-version here: https://go.dev/VERSION?m=text
-def goVersion = '1.18'
+def goVersion = '1.16'
 
 // Disable pr-merge builds; node-image pipeline doesn't use the PR images at all.
 if (env.BRANCH_NAME ==~ ~"^PR-\\d+") {
