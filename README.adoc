@@ -2,6 +2,9 @@
 
 A SLE Server GoLang Docker image used for RPM builds.
 
+Available images can only be seen by querying the Docker API or
+https://artifactory.algol60.net/artifactory/csm-docker/stable/csm-docker-sle-go[visiting the registry itself].
+
 == Building
 
 The provided `Makefile` adds Jenkins Pipeline variables to the `docker build` command. The commands below are for use outside the CSM Jenkins Pipeline.
@@ -26,8 +29,8 @@ docker build --secret id=SLES_REGISTRATION_CODE --build-arg GO_VERSION=go1.19 .
 # Go Version
 docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.19
 
-# Git Hash
-docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:<hash>
+# Go Version and distro
+docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.19-SLES15.4
 ----
 
 == GoLang Version(s)
@@ -36,14 +39,16 @@ The version is controlled by the `Jenkinsfile`.
 
 Unstable image tags will publish using these tags:
 
-* `[HASH]`
-* `[HASH]-[TIMESTAMP]`
+* `[DISTRO]-[HASH]`
+* `[DISTRO]-[HASH]-[TIMESTAMP]`
 
 Stable image tags will publish using these tags:
 
+.The `[MAJOR.MINOR]` image is only created against the latest distro.
 * `[MAJOR.MINOR]`
-* `[MAJOR.MINOR]-[HASH]`
-* `[MAJOR.MINOR]-[HASH]-[TIMESTAMP]`
+* `[MAJOR.MINOR]-[DISTRO]`
+* `[MAJOR.MINOR]-[DISTRO]-[HASH]`
+* `[MAJOR.MINOR]-[DISTRO]-[HASH]-[TIMESTAMP]`
 
 === Updating GO
 
