@@ -19,19 +19,47 @@
 # OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
-NAME ?= ${NAME}
-DOCKER_BUILDKIT ?= ${DOCKER_BUILDKIT}
+ifeq ($(NAME),)
+NAME := $(shell basename $(shell pwd))
+endif
+
+ifeq ($(DOCKER_BUILDKIT),)
+DOCKER_BUILDKIT ?= 1
+endif
+
+ifeq ($(GO_VERSION),)
 GO_VERSION := $(shell awk -v replace="'" '/goVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
-VERSION ?= ${VERSION}
+endif
+
+ifeq ($(SLE_VERSION),)
+SLE_VERSION := $(shell awk -v replace="'" '/mainSleVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
+endif
+
 ifeq ($(TIMESTAMP),)
 TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
 endif
 
+ifeq ($(VERSION),)
+VERSION ?= $(shell git rev-parse --short HEAD)
+endif
+
 all: image
 
-image:
-	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --build-arg GO_VERSION='go${GO_VERSION}' --tag '${NAME}:${VERSION}' .
-	docker tag '${NAME}:${VERSION}' ${NAME}:${VERSION}-${TIMESTAMP}
+.PHONY: print
+print:
+	@printf "%-20s: %s\n" Name $(NAME)
+	@printf "%-20s: %s\n" DOCKER_BUILDKIT $(DOCKER_BUILDKIT)
+	@printf "%-20s: %s\n" 'Go Version' $(GO_VERSION)
+	@printf "%-20s: %s\n" 'SLE Version' $(SLE_VERSION)
+	@printf "%-20s: %s\n" Timestamp $(TIMESTAMP)
+	@printf "%-20s: %s\n" Version $(VERSION)
+
+image: print
+	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --build-arg SLE_VERSION='${SLE_VERSION}' --build-arg GO_VERSION='go${GO_VERSION}' --tag '${NAME}:${VERSION}' .
+	docker tag '${NAME}:${VERSION}' ${NAME}:SLES${SLE_VERSION}-${VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}
 	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-${VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-${VERSION}-${TIMESTAMP}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-SLES${SLE_VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-SLES${SLE_VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}
