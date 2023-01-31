@@ -74,17 +74,14 @@ pipeline {
 
                 axes {
                     axis {
-                        name 'sleVersion'
-                        values 15.3, 15.4
+                        name 'SLE_VERSION'
+                        values '15.3', '15.4'
                     }
                 }
 
                 stages {
 
                     stage('Build') {
-                        environment {
-                            SLE_VERSION = "${sleVersion}"
-                        }
                         steps {
                             withCredentials([
                                     string(credentialsId: 'sles15-registration-code', variable: 'SLES_REGISTRATION_CODE')
@@ -107,12 +104,13 @@ pipeline {
                                         - Major.Minor                   (e.g. 1.18-SLES15.4)
                                         - Major.Minor                   (e.g. 1.18)
                                     */
-                                    publishCsmDockerImage(image: env.NAME, tag: "${goVersion}-SLES${sleVersion}-${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
-                                    publishCsmDockerImage(image: env.NAME, tag: "${goVersion}-SLES${sleVersion}-${env.VERSION}", isStable: isStable)
-                                    publishCsmDockerImage(image: env.NAME, tag: "${goVersion}-SLES${sleVersion}", isStable: isStable)
+                                    publishCsmDockerImage(image: env.NAME, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
+                                    publishCsmDockerImage(image: env.NAME, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}", isStable: isStable)
+                                    publishCsmDockerImage(image: env.NAME, tag: "${goVersion}-SLES${SLE_VERSION}", isStable: isStable)
 
                                     // Only publish the simple version images on the latest/newest base image.
-                                    if ("${sleVersion}" == "${mainSleVersion}") {
+                                    if ("${SLE_VERSION}" == "${mainSleVersion}") {
+                                        sh "docker tag ${env.NAME}:${goVersion}-SLES${mainSleVersion} ${env.NAME}:${goVersion}"
                                         publishCsmDockerImage(image: env.NAME, tag: "${goVersion}", isStable: isStable)
                                     }
                                 } else {
@@ -121,8 +119,8 @@ pipeline {
                                         - Hash-Timestamp                (e.g. SLES15.4-dhckj3-20221017133121)
                                         - Hash                          (e.g. SLES15.4-dhckj3)
                                     */
-                                    publishCsmDockerImage(image: env.NAME, tag: "SLES${sleVersion}-${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
-                                    publishCsmDockerImage(image: env.NAME, tag: "SLES${sleVersion}-${env.VERSION}", isStable: isStable)
+                                    publishCsmDockerImage(image: env.NAME, tag: "SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
+                                    publishCsmDockerImage(image: env.NAME, tag: "SLES${SLE_VERSION}-${env.VERSION}", isStable: isStable)
                                 }
                             }
                         }

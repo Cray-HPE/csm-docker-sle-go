@@ -20,27 +20,27 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 ifeq ($(NAME),)
-NAME := $(shell basename $(shell pwd))
+export NAME := $(shell basename $(shell pwd))
 endif
 
 ifeq ($(DOCKER_BUILDKIT),)
-DOCKER_BUILDKIT ?= 1
+export DOCKER_BUILDKIT ?= 1
 endif
 
 ifeq ($(GO_VERSION),)
-GO_VERSION := $(shell awk -v replace="'" '/goVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
+export GO_VERSION := $(shell awk -v replace="'" '/goVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
 endif
 
 ifeq ($(SLE_VERSION),)
-SLE_VERSION := $(shell awk -v replace="'" '/mainSleVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
+export SLE_VERSION := $(shell awk -v replace="'" '/mainSleVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
 endif
 
 ifeq ($(TIMESTAMP),)
-TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
+export TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
 endif
 
 ifeq ($(VERSION),)
-VERSION ?= $(shell git rev-parse --short HEAD)
+export VERSION ?= $(shell git rev-parse --short HEAD)
 endif
 
 all: image
@@ -55,11 +55,9 @@ print:
 	@printf "%-20s: %s\n" Version $(VERSION)
 
 image: print
-	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --build-arg SLE_VERSION='${SLE_VERSION}' --build-arg GO_VERSION='go${GO_VERSION}' --tag '${NAME}:${VERSION}' .
-	docker tag '${NAME}:${VERSION}' ${NAME}:SLES${SLE_VERSION}-${VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-SLES${SLE_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-SLES${SLE_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}
+	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --build-arg SLE_VERSION='${SLE_VERSION}' --build-arg GO_VERSION='go${GO_VERSION}' --tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' .
+	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:SLES${SLE_VERSION}-${VERSION}'
+	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}'
+	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}'
+	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}'
+	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}'
