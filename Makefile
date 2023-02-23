@@ -1,6 +1,6 @@
 # MIT License
 # 
-# (C) Copyright [2021-2022] Hewlett Packard Enterprise Development LP
+# (C) Copyright [2023] Hewlett Packard Enterprise Development LP
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -55,9 +55,11 @@ print:
 	@printf "%-20s: %s\n" Version $(VERSION)
 
 image: print
-	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --build-arg SLE_VERSION='${SLE_VERSION}' --build-arg GO_VERSION='go${GO_VERSION}' --tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' .
-	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:SLES${SLE_VERSION}-${VERSION}'
-	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}'
-	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}'
-	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}'
-	docker tag '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}'
+	docker buildx build --platform=linux/amd64,linux/arm64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --builder $$(docker buildx create --platform linux/amd64,linux/arm64) .
+	docker buildx create --use
+	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:${GO_VERSION}' .
+	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:SLES${SLE_VERSION}-${VERSION}' .
+	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' .
+	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' .
+	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}' .
+	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' .

@@ -29,11 +29,13 @@ FROM base AS go-base
 # Find the latest go-version here: https://go.dev/VERSION?m=text
 ARG GO_VERSION=''
 ENV GOCACHE=/tmp
+ARG TARGETPLATFORM
 
+RUN echo "${TARGETPLATFORM}"
 RUN if [ -z "${GO_VERSION}" ]; then export GO_VERSION="$(curl https://golang.org/VERSION?m=text)"; fi
 
-RUN curl -O "https://dl.google.com/go/$GO_VERSION.linux-amd64.tar.gz" \
-    && tar -C /usr/local -xzf "$GO_VERSION.linux-amd64.tar.gz"
+RUN curl -O "https://dl.google.com/go/$GO_VERSION.${TARGETPLATFORM//\//-}.tar.gz" \
+    && tar -C /usr/local -xzf "$GO_VERSION.${TARGETPLATFORM//\//-}.tar.gz"
 
 ENV PATH="$PATH:/usr/local/go/bin"
 
