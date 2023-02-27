@@ -2,7 +2,7 @@
  *
  *  MIT License
  *
- *  (C) Copyright 2022 Hewlett Packard Enterprise Development LP
+ *  (C) Copyright 2022-2023 Hewlett Packard Enterprise Development LP
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
@@ -107,10 +107,10 @@ pipeline {
                                 if (isStable) {
                                     /*
                                     Publish these tags on stable:
-                                        - Major.Minor-Hash-Timestamp    (e.g. 1.18-SLES15.4-dhckj3-20221017133121)
-                                        - Major.Minor-Hash-Timestamp    (e.g. 1.18-SLES15.4-dhckj3)
-                                        - Major.Minor                   (e.g. 1.18-SLES15.4)
-                                        - Major.Minor                   (e.g. 1.18)
+                                        - Major.Minor-Hash-Timestamp    (e.g. 1.19-SLES15.4-dhckj3-20221017133121)
+                                        - Major.Minor-Hash-Timestamp    (e.g. 1.19-SLES15.4-dhckj3)
+                                        - Major.Minor                   (e.g. 1.19-SLES15.4)
+                                        - Major.Minor                   (e.g. 1.19)
                                     */
                                     publishCsmDockerImage(image: env.NAME, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}", multiArch: env.MULTI_ARCH, isStable: isStable)
                                     publishCsmDockerImage(image: env.NAME, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}", multiArch: env.MULTI_ARCH, isStable: isStable)
