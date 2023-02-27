@@ -14,12 +14,9 @@ The provided `Makefile` adds Jenkins Pipeline variables to the `docker build` co
 export DOCKER_BUILDKIT=1
 export SLES_REGISTRATION_CODE=<registration_code>
 
-# Build GoLang with the latest GoLang from https://go.dev/VERSION?m=text
-docker build --secret id=SLES_REGISTRATION_CODE .
+make image
 
-# Build GoLang 1.18
-docker build --secret id=SLES_REGISTRATION_CODE --build-arg GO_VERSION=go1.19 .
-
+docker run -it csm-docker-sle-go:1.19
 ----
 
 == Running
@@ -31,6 +28,9 @@ docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.19
 
 # Go Version and distro
 docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.19-SLES15.4
+
+# Go Version and distro
+docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.19-SLES15.3
 ----
 
 == GoLang Version(s)
