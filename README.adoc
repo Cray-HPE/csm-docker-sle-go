@@ -23,11 +23,8 @@ docker run -it csm-docker-sle-go:1.18
 # Go Version
 docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.18
 
-# Go Version and distro
-docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.18-SLES15.4
-
-# Go Version and distro
-docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.18-SLES15.3
+# Git Hash
+docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:<hash>
 ----
 
 == GoLang Version(s)
