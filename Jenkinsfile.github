@@ -26,7 +26,7 @@
 @Library('csm-shared-library@main') _
 
 // Find the latest go-version here: https://go.dev/VERSION?m=text
-def goVersion = '1.19'
+def goVersion = '1.20'
 
 // Define the distro that the major.minor and major.minor.patch Docker tags publish to.
 def mainSleVersion = '15.4'
@@ -107,10 +107,10 @@ pipeline {
                                 if (isStable) {
                                     /*
                                     Publish these tags on stable:
-                                        - Major.Minor-Hash-Timestamp    (e.g. 1.19-SLES15.4-dhckj3-20221017133121)
-                                        - Major.Minor-Hash-Timestamp    (e.g. 1.19-SLES15.4-dhckj3)
-                                        - Major.Minor                   (e.g. 1.19-SLES15.4)
-                                        - Major.Minor                   (e.g. 1.19)
+                                        - Major.Minor-Hash-Timestamp    (e.g. 1.20-SLES15.4-dhckj3-20221017133121)
+                                        - Major.Minor-Hash-Timestamp    (e.g. 1.20-SLES15.4-dhckj3)
+                                        - Major.Minor                   (e.g. 1.20-SLES15.4)
+                                        - Major.Minor                   (e.g. 1.20)
                                     */
                                     publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable,  tag: "${goVersion}-SLES${SLE_VERSION}")
                                     publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable,  tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}")

@@ -16,7 +16,7 @@ export SLES_REGISTRATION_CODE=<registration_code>
 
 make image
 
-docker run -it csm-docker-sle-go:1.19
+docker run -it csm-docker-sle-go:1.20
 ----
 
 == Running
@@ -24,13 +24,13 @@ docker run -it csm-docker-sle-go:1.19
 [source,bash]
 ----
 # Go Version
-docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.19
+docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.20
 
 # Go Version and distro
-docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.19-SLES15.4
+docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.20-SLES15.4
 
 # Go Version and distro
-docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.19-SLES15.3
+docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle-go:1.20-SLES15.3
 ----
 
 == GoLang Version(s)
