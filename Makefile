@@ -31,6 +31,14 @@ ifeq ($(GO_VERSION),)
 export GO_VERSION := $(shell awk -v replace="'" '/goVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
 endif
 
+ifeq ($(SLE_VERSION),)
+export SLE_VERSION := $(shell awk -v replace="'" '/mainSleVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
+endif
+
+ifeq ($(BUILD_ARGS),)
+export BUILD_ARGS ?= --build-arg 'SLE_VERSION=$(SLE_VERSION)' --build-arg 'GO_VERSION=$(GO_VERSION)' --secret id=SLES_REGISTRATION_CODE
+endif
+
 ifeq ($(TIMESTAMP),)
 export TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
 endif
@@ -46,12 +54,33 @@ print:
 	@printf "%-20s: %s\n" Name $(NAME)
 	@printf "%-20s: %s\n" DOCKER_BUILDKIT $(DOCKER_BUILDKIT)
 	@printf "%-20s: %s\n" 'Go Version' $(GO_VERSION)
+	@printf "%-20s: %s\n" 'SLE Version' $(SLE_VERSION)
 	@printf "%-20s: %s\n" Timestamp $(TIMESTAMP)
 	@printf "%-20s: %s\n" Version $(VERSION)
 
 image: print
-	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --build-arg GO_VERSION='go${GO_VERSION}' --tag '${NAME}:${VERSION}' .
-	docker tag '${NAME}:${VERSION}' ${NAME}:${VERSION}-${TIMESTAMP}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-${VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${GO_VERSION}-${VERSION}-${TIMESTAMP}
+	docker buildx build \
+		${BUILD_ARGS} \
+		${DOCKER_ARGS} \
+		--cache-to type=local,dest=docker-build-cache  \
+		--platform linux/amd64,linux/arm64 \
+		--builder $$(docker buildx create --platform linux/amd64,linux/arm64) \
+		--pull \
+		 .
+
+	docker buildx create --use
+
+	docker buildx build \
+		${BUILD_ARGS} \
+		${DOCKER_ARGS} \
+		--cache-from type=local,src=docker-build-cache \
+		--platform linux/amd64 \
+		--pull \
+		--load \
+		-t '${NAME}:${GO_VERSION}' \
+		-t '${NAME}:SLES${SLE_VERSION}-${VERSION}' \
+		-t '${NAME}:SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' \
+		-t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' \
+		-t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}' \
+		-t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' \
+		.

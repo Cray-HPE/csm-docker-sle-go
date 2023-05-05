@@ -19,7 +19,8 @@
 # OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
-FROM artifactory.algol60.net/csm-docker/stable/csm-docker-sle:15.3 AS base
+ARG SLE_VERSION
+FROM artifactory.algol60.net/csm-docker/stable/csm-docker-sle:${SLE_VERSION} AS base
 
 RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
 CMD ["/bin/bash"]
@@ -28,11 +29,13 @@ FROM base AS go-base
 # Find the latest go-version here: https://go.dev/VERSION?m=text
 ARG GO_VERSION=''
 ENV GOCACHE=/tmp
+ARG TARGETPLATFORM
 
-RUN if [ -z "${GO_VERSION}" ]; then export GO_VERSION="$(curl https://golang.org/VERSION?m=text)"; fi
+RUN echo "${TARGETPLATFORM}"
+RUN if [ -z "${GO_VERSION}" ]; then export GO_VERSION="$(curl https://go.dev/VERSION?m=text)"; fi
 
-RUN curl -O "https://dl.google.com/go/$GO_VERSION.linux-amd64.tar.gz" \
-    && tar -C /usr/local -xzf "$GO_VERSION.linux-amd64.tar.gz"
+RUN curl -O "https://dl.google.com/go/go$GO_VERSION.${TARGETPLATFORM//\//-}.tar.gz" \
+    && tar -C /usr/local -xzf "go$GO_VERSION.${TARGETPLATFORM//\//-}.tar.gz"
 
 ENV PATH="$PATH:/usr/local/go/bin"
 
