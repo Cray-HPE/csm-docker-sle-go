@@ -55,7 +55,7 @@ pipeline {
     }
 
     // Run every week on Sunday at 4 PM, long after the base image has rebuilt from that morning.
-    triggers{ cron('H 16 * * 0') }
+    triggers { cron('H 16 * * 0') }
 
     environment {
         DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment for Go.')
@@ -63,6 +63,7 @@ pipeline {
         MULTI_ARCH = 1
         GO_VERSION = "${goVersion}"
         NAME = getRepoName()
+        SLES_REGISTRATION_CODE = credentials('sles15-registration-code')
         TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         VERSION = "${GIT_COMMIT[0..6]}"
     }
@@ -80,26 +81,20 @@ pipeline {
                     }
                 }
 
+                environment {
+                    BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --build-arg 'GO_VERSION=${goVersion}' --secret id=SLES_REGISTRATION_CODE"
+                    SLE_VERSION = "${SLE_VERSION}"
+                }
+
                 stages {
 
                     stage('Build') {
-                        environment {
-                            BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --build-arg 'GO_VERSION=go${GO_VERSION}'"
-                        }
                         steps {
-                            withCredentials([
-                                    string(credentialsId: 'sles15-registration-code', variable: 'SLES_REGISTRATION_CODE')
-                            ]) {
-                                sh "make image"
-                            }
+                            sh "make image"
                         }
                     }
 
                     stage('Publish') {
-                        environment {
-                            SLES_REGISTRATION_CODE = credentials('sles15-registration-code')
-                            BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --build-arg 'GO_VERSION=go${GO_VERSION}' --secret id=SLES_REGISTRATION_CODE"
-                        }
                         steps {
                             script {
 
@@ -112,13 +107,13 @@ pipeline {
                                         - Major.Minor                   (e.g. 1.19-SLES15.4)
                                         - Major.Minor                   (e.g. 1.19)
                                     */
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable,  tag: "${goVersion}-SLES${SLE_VERSION}")
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable,  tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}")
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable,  tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}")
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}")
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
 
                                     // Only publish the simple version images on the latest/newest base image.
                                     if ("${SLE_VERSION}" == "${mainSleVersion}") {
-                                        publishCsmDockerImage(image: env.NAME, tag: "${goVersion}", multiArch: env.MULTI_ARCH, isStable: isStable)
+                                        publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}")
                                     }
                                 } else {
                                     /*
@@ -126,8 +121,8 @@ pipeline {
                                         - Hash-Timestamp                (e.g. SLES15.4-dhckj3-20221017133121)
                                         - Hash                          (e.g. SLES15.4-dhckj3)
                                     */
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable,  tag: "SLES${SLE_VERSION}-${env.VERSION}")
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable,  tag: "SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "SLES${SLE_VERSION}-${env.VERSION}")
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
                                 }
                             }
                         }

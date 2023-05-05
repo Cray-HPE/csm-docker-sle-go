@@ -35,6 +35,10 @@ ifeq ($(SLE_VERSION),)
 export SLE_VERSION := $(shell awk -v replace="'" '/mainSleVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
 endif
 
+ifeq ($(BUILD_ARGS),)
+export BUILD_ARGS ?= --build-arg 'SLE_VERSION=$(SLE_VERSION)' --build-arg 'GO_VERSION=$(GO_VERSION)' --secret id=SLES_REGISTRATION_CODE
+endif
+
 ifeq ($(TIMESTAMP),)
 export TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
 endif
@@ -55,11 +59,28 @@ print:
 	@printf "%-20s: %s\n" Version $(VERSION)
 
 image: print
-	docker buildx build --platform=linux/amd64,linux/arm64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --builder $$(docker buildx create --platform linux/amd64,linux/arm64) .
+	docker buildx build \
+		${BUILD_ARGS} \
+		${DOCKER_ARGS} \
+		--cache-to type=local,dest=docker-build-cache  \
+		--platform linux/amd64,linux/arm64 \
+		--builder $$(docker buildx create --platform linux/amd64,linux/arm64) \
+		--pull \
+		 .
+
 	docker buildx create --use
-	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:${GO_VERSION}' .
-	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:SLES${SLE_VERSION}-${VERSION}' .
-	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' .
-	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' .
-	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}' .
-	docker buildx build --platform linux/amd64 ${BUILD_ARGS} --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --load -t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' .
+
+	docker buildx build \
+		${BUILD_ARGS} \
+		${DOCKER_ARGS} \
+		--cache-from type=local,src=docker-build-cache \
+		--platform linux/amd64 \
+		--pull \
+		--load \
+		-t '${NAME}:${GO_VERSION}' \
+		-t '${NAME}:SLES${SLE_VERSION}-${VERSION}' \
+		-t '${NAME}:SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' \
+		-t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' \
+		-t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}' \
+		-t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' \
+		.
