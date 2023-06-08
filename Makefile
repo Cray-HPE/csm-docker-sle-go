@@ -77,9 +77,8 @@ image: print
 		--platform linux/amd64 \
 		--pull \
 		--load \
+		-t '${NAME}:latest' \
 		-t '${NAME}:${GO_VERSION}' \
-		-t '${NAME}:SLES${SLE_VERSION}-${VERSION}' \
-		-t '${NAME}:SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' \
 		-t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}' \
 		-t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}' \
 		-t '${NAME}:${GO_VERSION}-SLES${SLE_VERSION}-${VERSION}-${TIMESTAMP}' \
