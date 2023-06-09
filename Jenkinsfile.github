@@ -103,27 +103,24 @@ pipeline {
                                 if (isStable) {
                                     /*
                                     Publish these tags on stable:
-                                        - Major.Minor-Hash-Timestamp    (e.g. 1.20-SLES15.4-dhckj3-20221017133121)
-                                        - Major.Minor-Hash-Timestamp    (e.g. 1.20-SLES15.4-dhckj3)
                                         - Major.Minor                   (e.g. 1.20-SLES15.4)
                                         - Major.Minor                   (e.g. 1.20)
                                     */
                                     publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}")
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}")
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
 
                                     // Only publish the simple version images on the latest/newest base image.
                                     if ("${SLE_VERSION}" == "${mainSleVersion}") {
                                         publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}")
+                                        publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "latest")
                                     }
                                 } else {
                                     /*
                                     Publish these tags on unstable:
-                                        - Hash-Timestamp                (e.g. SLES15.4-dhckj3-20221017133121)
-                                        - Hash                          (e.g. SLES15.4-dhckj3)
+                                        - Hash-Timestamp                (e.g. 1.20-SLES15.4-dhckj3-20221017133121)
+                                        - Hash                          (e.g. 1.20-SLES15.4-dhckj3)
                                     */
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "SLES${SLE_VERSION}-${env.VERSION}")
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}")
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
                                 }
                             }
                         }
