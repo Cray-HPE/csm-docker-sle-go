@@ -77,7 +77,7 @@ pipeline {
                 axes {
                     axis {
                         name 'SLE_VERSION'
-                        values '15.3', '15.4'
+                        values '15.4', '15.5'
                     }
                 }
 
@@ -95,36 +95,36 @@ pipeline {
                         }
                     }
 
-                    // stage('Publish') {
-                    //     steps {
-                    //         script {
+                    stage('Publish') {
+                        steps {
+                            script {
 
-                    //             // Only overwrite an image if this is a stable build.
-                    //             if (isStable) {
-                    //                 /*
-                    //                 Publish these tags on stable:
-                    //                     - Major.Minor                   (e.g. 1.20-SLES15.4)
-                    //                     - Major.Minor                   (e.g. 1.20)
-                    //                 */
-                    //                 publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}")
+                                // Only overwrite an image if this is a stable build.
+                                if (isStable) {
+                                    /*
+                                    Publish these tags on stable:
+                                        - Major.Minor                   (e.g. 1.20-SLES15.4)
+                                        - Major.Minor                   (e.g. 1.20)
+                                    */
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}")
 
-                    //                 // Only publish the simple version images on the latest/newest base image.
-                    //                 if ("${SLE_VERSION}" == "${mainSleVersion}") {
-                    //                     publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}")
-                    //                     publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "latest")
-                    //                 }
-                    //             } else {
-                    //                 /*
-                    //                 Publish these tags on unstable:
-                    //                     - Hash-Timestamp                (e.g. 1.20-SLES15.4-dhckj3-20221017133121)
-                    //                     - Hash                          (e.g. 1.20-SLES15.4-dhckj3)
-                    //                 */
-                    //                 publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}")
-                    //                 publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                                    // Only publish the simple version images on the latest/newest base image.
+                                    if ("${SLE_VERSION}" == "${mainSleVersion}") {
+                                        publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}")
+                                        publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "latest")
+                                    }
+                                } else {
+                                    /*
+                                    Publish these tags on unstable:
+                                        - Hash-Timestamp                (e.g. 1.20-SLES15.4-dhckj3-20221017133121)
+                                        - Hash                          (e.g. 1.20-SLES15.4-dhckj3)
+                                    */
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}")
+                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
