@@ -32,9 +32,9 @@ ENV GOCACHE=/tmp
 ARG TARGETPLATFORM
 
 RUN echo "${TARGETPLATFORM}"
-RUN if [ -z "${GO_VERSION}" ]; then export GO_VERSION="$(curl https://go.dev/VERSION?m=text)"; fi
+RUN if [ -z "${GO_VERSION}" ]; then export GO_VERSION="$(curl -s https://go.dev/VERSION?m=text | grep -E '^go\d+\.\d+\.?\d+?$')"; fi
 
-RUN curl -O "https://dl.google.com/go/go$GO_VERSION.${TARGETPLATFORM//\//-}.tar.gz" \
+RUN curl -OL "https://go.dev/dl/go$GO_VERSION.${TARGETPLATFORM//\//-}.tar.gz" \
     && tar -C /usr/local -xzf "go$GO_VERSION.${TARGETPLATFORM//\//-}.tar.gz"
 
 ENV PATH="$PATH:/usr/local/go/bin"
