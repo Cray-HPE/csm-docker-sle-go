@@ -26,10 +26,10 @@
 @Library('csm-shared-library@main') _
 
 // Find the latest go-version here: https://go.dev/VERSION?m=text
-def goVersion = '1.20'
+def goVersion = '1.21.6'
 
 // Define the distro that the major.minor and major.minor.patch Docker tags publish to.
-def mainSleVersion = '15.4'
+def mainSleVersion = '15.5'
 
 // Disable pr-merge builds; node-image pipeline doesn't use the PR images at all.
 if (env.BRANCH_NAME ==~ ~"^PR-\\d+") {
@@ -95,36 +95,36 @@ pipeline {
                         }
                     }
 
-                    stage('Publish') {
-                        steps {
-                            script {
+                    // stage('Publish') {
+                    //     steps {
+                    //         script {
 
-                                // Only overwrite an image if this is a stable build.
-                                if (isStable) {
-                                    /*
-                                    Publish these tags on stable:
-                                        - Major.Minor                   (e.g. 1.20-SLES15.4)
-                                        - Major.Minor                   (e.g. 1.20)
-                                    */
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}")
+                    //             // Only overwrite an image if this is a stable build.
+                    //             if (isStable) {
+                    //                 /*
+                    //                 Publish these tags on stable:
+                    //                     - Major.Minor                   (e.g. 1.20-SLES15.4)
+                    //                     - Major.Minor                   (e.g. 1.20)
+                    //                 */
+                    //                 publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}")
 
-                                    // Only publish the simple version images on the latest/newest base image.
-                                    if ("${SLE_VERSION}" == "${mainSleVersion}") {
-                                        publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}")
-                                        publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "latest")
-                                    }
-                                } else {
-                                    /*
-                                    Publish these tags on unstable:
-                                        - Hash-Timestamp                (e.g. 1.20-SLES15.4-dhckj3-20221017133121)
-                                        - Hash                          (e.g. 1.20-SLES15.4-dhckj3)
-                                    */
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}")
-                                    publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
-                                }
-                            }
-                        }
-                    }
+                    //                 // Only publish the simple version images on the latest/newest base image.
+                    //                 if ("${SLE_VERSION}" == "${mainSleVersion}") {
+                    //                     publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}")
+                    //                     publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "latest")
+                    //                 }
+                    //             } else {
+                    //                 /*
+                    //                 Publish these tags on unstable:
+                    //                     - Hash-Timestamp                (e.g. 1.20-SLES15.4-dhckj3-20221017133121)
+                    //                     - Hash                          (e.g. 1.20-SLES15.4-dhckj3)
+                    //                 */
+                    //                 publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}")
+                    //                 publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 }
             }
         }
