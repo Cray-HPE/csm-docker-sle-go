@@ -108,7 +108,7 @@ pipeline {
                                     publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}-SLES${SLE_VERSION}")
 
                                     // Only publish the simple version images on the latest/newest base image.
-                                    if ("${SLE_VERSION}" == "${mainSleVersion}") {
+                                    if ("${SLE_VERSION}" == "${mainSleVersion}" && env.BRANCH_NAME == 'main' ) {
                                         publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${goVersion}")
                                         publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "latest")
                                     }
