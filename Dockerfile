@@ -1,6 +1,6 @@
 # MIT License
 #
-# (C) Copyright 2022-2023 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2022-2024 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -26,16 +26,19 @@ RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r "$(cat /run/sec
 CMD ["/bin/bash"]
 FROM base AS go-base
 
-# Find the latest go-version here: https://go.dev/VERSION?m=text
 ARG GO_VERSION=''
 ENV GOCACHE=/tmp
 ARG TARGETPLATFORM
 
 RUN echo "${TARGETPLATFORM}"
-RUN if [ -z "${GO_VERSION}" ]; then export GO_VERSION="$(curl https://go.dev/VERSION?m=text)"; fi
 
-RUN curl -O "https://dl.google.com/go/go$GO_VERSION.${TARGETPLATFORM//\//-}.tar.gz" \
-    && tar -C /usr/local -xzf "go$GO_VERSION.${TARGETPLATFORM//\//-}.tar.gz"
+# Find the latest go-version here: https://go.dev/VERSION?m=text
+# Archived Go versions are not listed at that URL.
+# Lookup the latest major.minor.patch version for the desired major.minor version
+RUN GO_FULL_VERSION=$(curl -s https://go.dev/dl/#archive | grep -oP "go${GO_VERSION}\.[0-9]+\.${TARGETPLATFORM//\//-}\.tar\.gz" | sort -V | sed -E 's/go([0-9]+\.[0-9]+\.[0-9]+).*/\1/' | tail -1) \
+    && curl -OL "https://go.dev/dl/go${GO_FULL_VERSION}.${TARGETPLATFORM//\//-}.tar.gz" \
+    && tar -C /usr/local -xzf "go${GO_FULL_VERSION}.${TARGETPLATFORM//\//-}.tar.gz" \
+    && rm "go${GO_FULL_VERSION}.${TARGETPLATFORM//\//-}.tar.gz"
 
 ENV PATH="$PATH:/usr/local/go/bin"
 
