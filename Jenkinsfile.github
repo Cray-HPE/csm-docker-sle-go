@@ -29,7 +29,7 @@
 def docker_registry = 'artifactory.algol60.net/csm-docker'
 
 // Find the latest go-version here: https://go.dev/VERSION?m=text
-def goVersion = '1.21'
+def goVersion = '1.22'
 
 // Define the distro that the major.minor and major.minor.patch Docker tags publish to.
 def mainSleVersion = '15.6'
@@ -122,8 +122,8 @@ pipeline {
                                 if (isStable) {
                                     /*
                                     Publish these tags on stable:
-                                        - Major.Minor                   (e.g. 1.21-SLES15.6)
-                                        - Major.Minor                   (e.g. 1.21)
+                                        - Major.Minor                   (e.g. 1.22-SLES15.6)
+                                        - Major.Minor                   (e.g. 1.22)
                                     */
                                     def stream = "${docker_registry}/stable/${env.NAME}"
 
@@ -144,8 +144,8 @@ pipeline {
                                 } else {
                                     /*
                                     Publish these tags on unstable:
-                                        - Hash-Timestamp                (e.g. 1.21-SLES15.6-dhckj3-20221017133121)
-                                        - Hash                          (e.g. 1.21-SLES15.6-dhckj3)
+                                        - Hash-Timestamp                (e.g. 1.22-SLES15.6-dhckj3-20221017133121)
+                                        - Hash                          (e.g. 1.22-SLES15.6-dhckj3)
                                     */
                                     def stream = "${docker_registry}/unstable/${env.NAME}"
 
