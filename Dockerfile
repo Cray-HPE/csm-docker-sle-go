@@ -21,8 +21,11 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ARG SLE_VERSION
 FROM artifactory.algol60.net/csm-docker/stable/csm-docker-sle:${SLE_VERSION} AS base
+ARG SLE_VERSION
+ARG TARGETARCH
 
-RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
+RUN --mount=type=secret,id=SLES_REGISTRATION_CODE_${TARGETARCH} suseconnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE_${TARGETARCH})"
+
 CMD ["/bin/bash"]
 FROM base AS go-base
 
